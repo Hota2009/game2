@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>مختبر كيمياء بسيط</title>
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        background: #102030;
+        color: #f5f7ff;
+        direction: rtl;
+      }
+      .app {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 1rem;
+      }
+      .card {
+        background: #18283a;
+        border-radius: 12px;
+        padding: 1rem;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+      }
+      header {
+        margin-bottom: 0.75rem;
+      }
+      .title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        margin-bottom: 0.25rem;
+      }
+      .subtitle {
+        font-size: 0.9rem;
+        color: #c7d5ff;
+      }
+      .layout {
+        display: grid;
+        grid-template-columns: 1.4fr 1fr;
+        gap: 0.75rem;
+        margin-top: 0.75rem;
+      }
+      .beaker-area {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.75rem;
+      }
+      .beaker {
+        width: 180px;
+        height: 220px;
+        border-radius: 0 0 90px 90px;
+        border: 3px solid rgba(220, 235, 255, 0.8);
+        border-top: none;
+        position: relative;
+        overflow: hidden;
+        background: linear-gradient(
+          135deg,
+          rgba(255, 255, 255, 0.25),
+          rgba(20, 40, 70, 0.9)
+        );
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6);
+      }
+      .liquid {
+        position: absolute;
+        left: 6px;
+        right: 6px;
+        bottom: 0;
+        height: 0%;
+        border-radius: 80px 80px 60px 60px;
+        background: linear-gradient(
+          180deg,
+          rgba(255, 255, 255, 0.25),
+          #4fa9ff
+        );
+        transition: height 0.4s ease, background 0.4s ease;
+      }
+      .liquid::before {
+        content: "";
+        position: absolute;
+        top: -10px;
+        left: -4px;
+        right: -4px;
+        height: 18px;
+        border-radius: 50%;
+        background: radial-gradient(
+          ellipse at top,
+          rgba(255, 255, 255, 0.85),
+          rgba(180, 210, 255, 0.3),
+          transparent
+        );
+      }
+      .bubbles {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+      }
+      .bubble {
+        position: absolute;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        border: 1px solid rgba(255, 255, 255, 0.7);
+        background: radial-gradient(
+          circle,
+          rgba(255, 255, 255, 0.9),
+          transparent
+        );
+        opacity: 0;
+        animation: rise 3s linear infinite;
+      }
+      .bubble.b1 {
+        left: 35px;
+        bottom: 10px;
+        animation-delay: 0s;
+      }
+      .bubble.b2 {
+        left: 80px;
+        bottom: 20px;
+        width: 8px;
+        height: 8px;
+        animation-delay: 0.8s;
+      }
+      .bubble.b3 {
+        left: 120px;
+        bottom: 5px;
+        width: 12px;
+        height: 12px;
+        animation-delay: 1.6s;
+      }
+      @keyframes rise {
+        0% {
+          transform: translateY(0);
+          opacity: 0;
+        }
+        20% {
+          opacity: 0.9;
+        }
+        80% {
+          transform: translateY(-80px);
+          opacity: 0.7;
+        }
+        100% {
+          transform: translateY(-90px);
+          opacity: 0;
+        }
+      }
+      .chemicals {
+        display: flex;
+        flex-direction: column;
+        gap: 0.4rem;
+      }
+      .chem-title {
+        font-size: 0.9rem;
+        margin-bottom: 0.25rem;
+      }
+      .chem-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.4rem;
+      }
+      .chem-btn {
+        border: none;
+        border-radius: 10px;
+        padding: 0.4rem 0.7rem;
+        font-size: 0.8rem;
+        cursor: pointer;
+        background: #243852;
+        color: #e4eeff;
+        border: 1px solid rgba(140, 190, 255, 0.4);
+      }
+      .chem-btn:hover {
+        background: #29415f;
+      }
+      .actions {
+        display: flex;
+        flex-direction: column;
+        gap: 0.4rem;
+        align-items: center;
+      }
+      .primary {
+        border: none;
+        border-radius: 999px;
+        padding: 0.5rem 1.4rem;
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+        background: linear-gradient(135deg, #00c6ff, #0072ff);
+        color: #f9fbff;
+      }
+      .primary:disabled {
+        opacity: 0.5;
+        cursor: default;
+      }
+      .info {
+        font-size: 0.8rem;
+        color: #c4d3ff;
+        text-align: center;
+        min-height: 2.4em;
+      }
+      .explanation {
+        margin-top: 0.5rem;
+        font-size: 0.85rem;
+        line-height: 1.6;
+        color: #e0e7ff;
+        min-height: 5em;
+      }
+      .equation {
+        margin-top: 0.3rem;
+        padding: 0.3rem 0.6rem;
+        border-radius: 8px;
+        background: #101b2a;
+        font-family: "Segoe UI", system-ui, sans-serif;
+        direction: ltr;
+        text-align: center;
+        font-size: 0.9rem;
+      }
+      .stars {
+        margin-top: 0.4rem;
+        font-size: 1.1rem;
+        color: #555f75;
+      }
+      .star-on {
+        color: #ffd166;
+      }
+      @media (max-width: 700px) {
+        .layout {
+          grid-template-columns: 1fr;
+        }
+        .beaker-area {
+          order: -1;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <div class="card">
+        <header>
+          <div class="title">تجربة بسيطة: تعادل حمض مع قاعدة</div>
+          <div class="subtitle">
+            الهدف: ملاحظة تغيّر لون المحلول عند تعادل حمض مع قاعدة بوجود دليل لوني.
+          </div>
+        </header>
+
+        <div class="layout">
+          <div class="beaker-area">
+            <div class="beaker">
+              <div id="liquid" class="liquid"></div>
+              <div class="bubbles">
+                <div class="bubble b1"></div>
+                <div class="bubble b2"></div>
+                <div class="bubble b3"></div>
+              </div>
+            </div>
+            <div class="actions">
+              <button id="startBtn" class="primary" disabled>ابدأ التفاعل</button>
+              <div id="info" class="info">
+                اضغط على المواد لإضافتها إلى الكأس بالترتيب الصحيح.
+              </div>
+            </div>
+          </div>
+
+          <div class="chemicals">
+            <div class="chem-title">المواد المتاحة:</div>
+            <div class="chem-list">
+              <button class="chem-btn" data-chem="indicator">
+                دليل لوني
+              </button>
+              <button class="chem-btn" data-chem="base">
+                محلول قاعدي (NaOH)
+              </button>
+              <button class="chem-btn" data-chem="acid">
+                محلول حمضي (HCl)
+              </button>
+            </div>
+            <div class="chem-title" style="margin-top:0.5rem;">ما تم إضافته:</div>
+            <div id="addedList" style="font-size:0.8rem; color:#cdd9ff; min-height:1.6em;">
+              لا شيء بعد.
+            </div>
+            <div class="explanation" id="explanation"></div>
+            <div class="equation" id="equation"></div>
+            <div class="stars" id="stars"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const requiredOrder = ["indicator", "base", "acid"];
+      const added = [];
+      const liquid = document.getElementById("liquid");
+      const info = document.getElementById("info");
+      const addedList = document.getElementById("addedList");
+      const startBtn = document.getElementById("startBtn");
+      const explanation = document.getElementById("explanation");
+      const equation = document.getElementById("equation");
+      const starsEl = document.getElementById("stars");
+
+      const chemNames = {
+        indicator: "دليل لوني",
+        base: "محلول قاعدي (NaOH)",
+        acid: "محلول حمضي (HCl)",
+      };
+
+      document.querySelectorAll(".chem-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          if (added.length >= 3) {
+            info.textContent = "لقد أضفت كل المواد. اضغط على زر \"ابدأ التفاعل\".";
+            return;
+          }
+          const id = btn.dataset.chem;
+          added.push(id);
+          updateAddedList();
+          updateLiquidVisual();
+          info.textContent =
+            "يمكنك متابعة إضافة المواد، ثم اضغط على زر \"ابدأ التفاعل\".";
+          if (added.length >= 2) {
+            startBtn.disabled = false;
+          }
+        });
+      });
+
+      function updateAddedList() {
+        if (!added.length) {
+          addedList.textContent = "لا شيء بعد.";
+          return;
+        }
+        addedList.textContent = added.map((id) => chemNames[id]).join(" + ");
+      }
+
+      function updateLiquidVisual() {
+        const h = 20 + added.length * 20;
+        liquid.style.height = h + "%";
+        let color = "#4fa9ff"; // مبدئي
+        if (added.includes("indicator") && !added.includes("base")) {
+          color = "#ff7ad9"; // الدليل في وسط حمضي/محايد
+        }
+        if (added.includes("indicator") && added.includes("base")) {
+          color = "#ffb3e6"; // وردي (قاعدي)
+        }
+        liquid.style.background = `linear-gradient(180deg, rgba(255,255,255,0.25), ${color})`;
+      }
+
+      startBtn.addEventListener("click", () => {
+        if (!added.length) return;
+        const score = evaluate();
+        showResult(score);
+      });
+
+      function evaluate() {
+        let stars = 0;
+        // هل استخدم كل المواد الثلاثة؟
+        const hasAll =
+          requiredOrder.every((id) => added.includes(id)) && added.length === 3;
+        if (hasAll) stars++;
+        // هل الترتيب صحيح تمامًا؟
+        const orderCorrect =
+          added.length === requiredOrder.length &&
+          added.every((id, i) => id === requiredOrder[i]);
+        if (orderCorrect) stars += 2;
+        else if (hasAll) stars += 1;
+        return Math.min(stars, 3);
+      }
+
+      function showResult(stars) {
+        let msg = "";
+        if (stars === 3) {
+          msg =
+            "رائع! أضفت الدليل أولاً، ثم القاعدة، ثم الحمض. هكذا نرى بوضوح تغيّر لون الدليل عند التعادل.";
+        } else if (stars === 2) {
+          msg =
+            "تجربة جيدة! استخدمت المواد الصحيحة لكن ترتيب الإضافة لم يكن المثالي. حاول مرة أخرى بترتيب مختلف.";
+        } else if (stars === 1) {
+          msg =
+            "بعض المواد المستخدمة صحيحة، لكن بإمكانك تحسين الاختيار والترتيب للحصول على نتيجة أوضح.";
+        } else {
+          msg =
+            "هذه المرة لم تعكس التجربة تعادلًا واضحًا. لا بأس، الفكرة من اللعبة أن تتدرّب بالتجربة والخطأ.";
+        }
+        explanation.textContent = msg;
+        equation.textContent = "HCl(aq) + NaOH(aq) → NaCl(aq) + H₂O(l)";
+        starsEl.innerHTML =
+          '<span class="' +
+          (stars >= 1 ? "star-on" : "") +
+          '">★</span> ' +
+          '<span class="' +
+          (stars >= 2 ? "star-on" : "") +
+          '">★</span> ' +
+          '<span class="' +
+          (stars >= 3 ? "star-on" : "") +
+          '">★</span>';
+      }
+    </script>
+  </body>
+</html>
+

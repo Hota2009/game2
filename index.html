@@ -1,0 +1,1416 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>مختبر كيمياء عربي - منظور ثنائي الأبعاد</title>
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        background: #0f172a;
+        color: #e5ecff;
+        direction: rtl;
+      }
+      .app {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 0.75rem;
+      }
+      .shell {
+        background: #111827;
+        border-radius: 16px;
+        padding: 0.75rem 0.9rem 0.9rem;
+        border: 1px solid rgba(148, 163, 184, 0.4);
+        box-shadow: 0 18px 40px rgba(15, 23, 42, 0.9);
+      }
+      header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+        padding-bottom: 0.6rem;
+        border-bottom: 1px solid rgba(148, 163, 184, 0.35);
+      }
+      .titles {
+        display: flex;
+        flex-direction: column;
+        gap: 0.2rem;
+      }
+      .title {
+        font-size: 1.05rem;
+        font-weight: 700;
+      }
+      .subtitle {
+        font-size: 0.85rem;
+        color: #c7d2fe;
+      }
+      .experiment-select {
+        display: flex;
+        flex-direction: column;
+        gap: 0.2rem;
+        font-size: 0.8rem;
+      }
+      .experiment-select label {
+        color: #cbd5f5;
+      }
+      select {
+        border-radius: 999px;
+        border: 1px solid rgba(148, 163, 184, 0.7);
+        background: #020617;
+        color: #e5ecff;
+        padding: 0.25rem 0.8rem;
+        font-size: 0.8rem;
+        outline: none;
+      }
+      main {
+        display: grid;
+        grid-template-columns: 220px minmax(0, 1fr) 220px;
+        gap: 0.6rem;
+        padding-top: 0.6rem;
+      }
+      .panel {
+        background: #020617;
+        border-radius: 12px;
+        padding: 0.6rem;
+        border: 1px solid rgba(30, 64, 175, 0.7);
+      }
+      .panel-title {
+        font-size: 0.85rem;
+        font-weight: 600;
+        margin-bottom: 0.4rem;
+        color: #dbeafe;
+      }
+      .panel-body {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.4rem;
+      }
+      .hidden {
+        display: none !important;
+      }
+      .item {
+        width: calc(50% - 0.2rem);
+        min-height: 190px;
+        border-radius: 10px;
+        padding: 0.3rem;
+        background: radial-gradient(circle at top, #0f172a, #020617);
+        border: 1px solid rgba(148, 163, 184, 0.6);
+        position: relative;
+      }
+      .item-header {
+        font-size: 0.75rem;
+        font-weight: 600;
+        margin-bottom: 0.1rem;
+      }
+      .item-caption {
+        font-size: 0.7rem;
+        color: #9ca3af;
+      }
+      .item-graphic {
+        margin-top: 0.25rem;
+        height: 130px;
+        position: relative;
+      }
+
+      /* =========================
+         CSS-ready MATERIALS (User spec)
+         ========================= */
+      .material {
+        width: 70px;
+        height: 130px;
+        position: relative;
+        cursor: grab;
+        margin: 0 auto;
+      }
+
+      .vessel {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        top: 6px;
+        width: 64px;
+        height: 92px;
+      }
+
+      /* Glass bottle */
+      .vessel.bottle {
+        filter: drop-shadow(0 10px 14px rgba(0, 0, 0, 0.55));
+      }
+      .vessel.bottle .neck {
+        width: 22px;
+        height: 16px;
+        margin: 0 auto;
+        border-radius: 10px 10px 4px 4px;
+        border: 2px solid rgba(226, 232, 240, 0.9);
+        border-bottom: none;
+        background: linear-gradient(
+          135deg,
+          rgba(255, 255, 255, 0.5),
+          rgba(2, 6, 23, 0.85)
+        );
+      }
+      .vessel.bottle .body {
+        width: 56px;
+        height: 70px;
+        margin: 0 auto;
+        border-radius: 10px 10px 16px 16px;
+        border: 2px solid rgba(226, 232, 240, 0.9);
+        background: linear-gradient(
+          135deg,
+          rgba(248, 250, 252, 0.35),
+          rgba(2, 6, 23, 0.9)
+        );
+        position: relative;
+        overflow: hidden;
+      }
+      .vessel.bottle .body::before {
+        content: "";
+        position: absolute;
+        top: -10px;
+        left: -18px;
+        width: 30px;
+        height: 120%;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.25),
+          transparent
+        );
+        transform: rotate(12deg);
+      }
+
+      /* Powder jar */
+      .vessel.jar {
+        width: 64px;
+        height: 76px;
+        top: 16px;
+        border-radius: 10px;
+        border: 2px solid rgba(226, 232, 240, 0.9);
+        background: linear-gradient(
+          135deg,
+          rgba(248, 250, 252, 0.7),
+          rgba(148, 163, 184, 0.25)
+        );
+        overflow: hidden;
+        filter: drop-shadow(0 10px 14px rgba(0, 0, 0, 0.55));
+      }
+      .vessel.jar::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 12px;
+        background: linear-gradient(180deg, #334155, #0f172a);
+      }
+
+      /* Solid piece holder */
+      .vessel.piece {
+        width: 64px;
+        height: 76px;
+        top: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 12px;
+        border: 1px dashed rgba(148, 163, 184, 0.7);
+        background: rgba(2, 6, 23, 0.35);
+      }
+
+      /* Inner contents */
+      .liquid {
+        position: absolute;
+        left: 6px;
+        right: 6px;
+        bottom: 6px;
+        height: 62%;
+        border-radius: 999px 999px 14px 14px;
+      }
+
+      /* 1) Acid (HCl) - subtle, transparent */
+      .liquid.acid {
+        background: linear-gradient(
+          to top,
+          rgba(80, 160, 255, 0.45),
+          rgba(200, 230, 255, 0.25)
+        );
+      }
+
+      /* 2) Base (NaOH) - lighter */
+      .liquid.base {
+        background: linear-gradient(
+          to top,
+          rgba(230, 230, 230, 0.6),
+          rgba(255, 255, 255, 0.3)
+        );
+      }
+
+      /* 3) Salt solution - almost water */
+      .liquid.salt {
+        background: rgba(255, 255, 255, 0.15);
+      }
+
+      /* 6) CuSO4 solution - strong blue */
+      .liquid.cuso4 {
+        background: linear-gradient(
+          to top,
+          rgba(0, 120, 255, 0.6),
+          rgba(120, 180, 255, 0.3)
+        );
+      }
+
+      /* 9) Redox - visual hint */
+      .liquid.redox {
+        background: linear-gradient(to right, #ffcc00, #cccccc);
+      }
+
+      /* 4) Metal pieces */
+      .metal {
+        width: 40px;
+        height: 15px;
+        background: linear-gradient(to bottom, #eeeeee, #aaaaaa);
+        border-radius: 4px;
+        box-shadow: inset 0 2px 3px rgba(255, 255, 255, 0.6);
+      }
+
+      /* 5) Non-metals */
+      .nonmetal {
+        width: 22px;
+        height: 22px;
+        margin: 0 3px;
+        display: inline-block;
+      }
+      .nonmetal.carbon {
+        background: #222;
+        border-radius: 50%;
+        box-shadow: inset 0 2px 3px rgba(255, 255, 255, 0.08);
+      }
+      .nonmetal.sulfur {
+        background: #f1d400;
+        border-radius: 6px;
+        box-shadow: inset 0 2px 3px rgba(255, 255, 255, 0.4);
+      }
+
+      /* Beaker reaction layers */
+      .precipitate {
+        position: absolute;
+        left: 6px;
+        right: 6px;
+        bottom: 0;
+        height: 0px;
+        background: #f5f5f5;
+        border-radius: 0 0 16px 16px;
+        opacity: 0;
+        transition: height 0.6s ease, opacity 0.6s ease;
+      }
+      .precipitate.show {
+        height: 15px;
+        opacity: 0.95;
+      }
+      .precipitate.copper {
+        background: linear-gradient(180deg, #b45309, #7c2d12);
+      }
+
+      /* Gas badge */
+      .gas {
+        position: absolute;
+        left: 50%;
+        bottom: 205px;
+        transform: translateX(-50%);
+        padding: 4px 10px;
+        border-radius: 999px;
+        border: 1px solid rgba(226, 232, 240, 0.8);
+        background: rgba(2, 6, 23, 0.7);
+        color: rgba(226, 232, 240, 0.95);
+        font-size: 0.8rem;
+        opacity: 0.4;
+        animation: rise 2s infinite;
+        pointer-events: none;
+      }
+
+      /* Redox overlay arrows */
+      .redox-overlay {
+        position: absolute;
+        left: 50%;
+        bottom: 195px;
+        transform: translateX(-50%);
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        padding: 4px 10px;
+        border-radius: 999px;
+        background: rgba(255, 204, 0, 0.12);
+        border: 1px solid rgba(255, 204, 0, 0.5);
+        color: #fde68a;
+        font-size: 0.78rem;
+        pointer-events: none;
+      }
+      /* 2D bottle shape */
+      .bottle {
+        position: absolute;
+        inset: 0;
+        margin: auto;
+        width: 36px;
+        height: 44px;
+      }
+      .bottle-neck {
+        width: 16px;
+        height: 12px;
+        margin: 0 auto;
+        border-radius: 6px 6px 3px 3px;
+        border: 2px solid rgba(209, 213, 219, 0.85);
+        border-bottom: none;
+        background: linear-gradient(
+          135deg,
+          rgba(255, 255, 255, 0.4),
+          rgba(31, 41, 55, 0.8)
+        );
+      }
+      .bottle-body {
+        width: 30px;
+        height: 26px;
+        margin: 0 auto;
+        border-radius: 6px 6px 8px 8px;
+        border: 2px solid rgba(209, 213, 219, 0.85);
+        background: linear-gradient(
+          135deg,
+          rgba(248, 250, 252, 0.5),
+          rgba(15, 23, 42, 0.9)
+        );
+        position: relative;
+        overflow: hidden;
+      }
+      .bottle-liquid {
+        position: absolute;
+        left: 3px;
+        right: 3px;
+        bottom: 3px;
+        height: 55%;
+        border-radius: 99px 99px 7px 7px;
+        background: linear-gradient(
+          180deg,
+          rgba(255, 255, 255, 0.35),
+          #38bdf8
+        );
+      }
+      .jar {
+        position: absolute;
+        inset: 0;
+        margin: auto;
+        width: 40px;
+        height: 38px;
+        border-radius: 6px;
+        border: 2px solid rgba(209, 213, 219, 0.9);
+        background: linear-gradient(
+          135deg,
+          rgba(249, 250, 251, 0.9),
+          rgba(209, 213, 219, 0.9)
+        );
+        overflow: hidden;
+      }
+      .jar-powder {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 55%;
+        background: linear-gradient(180deg, #e5e7eb, #9ca3af);
+      }
+      .dropper {
+        position: absolute;
+        inset: 0;
+        margin: auto;
+        width: 50px;
+        height: 40px;
+      }
+      .dropper-body {
+        position: absolute;
+        left: 20px;
+        top: 4px;
+        width: 8px;
+        height: 24px;
+        border-radius: 4px;
+        background: linear-gradient(180deg, #e5e7eb, #6b7280);
+      }
+      .dropper-tip {
+        position: absolute;
+        left: 22px;
+        top: 24px;
+        width: 4px;
+        height: 10px;
+        border-radius: 999px;
+        background: #38bdf8;
+      }
+      .scale {
+        position: absolute;
+        inset: 0;
+        margin: auto;
+        width: 56px;
+        height: 30px;
+        border-radius: 8px;
+        background: linear-gradient(135deg, #020617, #111827);
+        border: 2px solid rgba(55, 65, 81, 0.9);
+      }
+      .scale-screen {
+        position: absolute;
+        left: 10px;
+        right: 10px;
+        top: 6px;
+        height: 12px;
+        border-radius: 4px;
+        background: #022c22;
+      }
+      .scale-screen::after {
+        content: "0.00 g";
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.6rem;
+        color: #bbf7d0;
+      }
+
+      /* Center lab area */
+      .center {
+        background: radial-gradient(circle at top, #020617, #020617 50%, #020617);
+        border-radius: 12px;
+        border: 1px solid rgba(30, 64, 175, 0.8);
+        padding: 0.7rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.6rem;
+      }
+      .lab-surface {
+        width: 100%;
+        max-width: 420px;
+        height: 260px;
+        border-radius: 14px;
+        background: linear-gradient(
+          180deg,
+          #020617 0%,
+          #020617 55%,
+          #0b1120 55%,
+          #0b1120 100%
+        );
+        position: relative;
+        overflow: hidden;
+      }
+      .lab-table {
+        position: absolute;
+        left: -10%;
+        right: -10%;
+        bottom: 36px;
+        height: 70px;
+        background: linear-gradient(180deg, #0b1120, #020617);
+        box-shadow: 0 -6px 18px rgba(15, 23, 42, 0.9);
+      }
+
+      /* 2D beaker side-view */
+      .beaker {
+        position: absolute;
+        left: 50%;
+        bottom: 40px;
+        transform: translateX(-50%);
+        width: 120px;
+        height: 150px;
+        border-radius: 0 0 60px 60px;
+        border: 3px solid rgba(226, 232, 240, 0.9);
+        border-top: none;
+        background: linear-gradient(
+          135deg,
+          rgba(248, 250, 252, 0.7),
+          rgba(30, 64, 175, 0.05)
+        );
+        box-shadow: 0 10px 30px rgba(15, 23, 42, 1);
+        overflow: hidden;
+      }
+      .beaker-liquid {
+        position: absolute;
+        left: 6px;
+        right: 6px;
+        bottom: 0;
+        height: 0%;
+        border-radius: 80px 80px 50px 50px;
+        background: rgba(255, 255, 255, 0.15);
+        transition: height 0.35s ease, background 0.35s ease;
+      }
+      .beaker-liquid::before {
+        content: "";
+        position: absolute;
+        top: -8px;
+        left: -4px;
+        right: -4px;
+        height: 16px;
+        border-radius: 50%;
+        background: radial-gradient(
+          ellipse at top,
+          rgba(248, 250, 252, 0.9),
+          rgba(125, 211, 252, 0.3),
+          transparent
+        );
+      }
+      /* bubbles from bottom */
+      .bubbles {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+      }
+      .bubble {
+        position: absolute;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        border: 1px solid rgba(248, 250, 252, 0.8);
+        background: radial-gradient(
+          circle,
+          rgba(248, 250, 252, 0.9),
+          transparent
+        );
+        opacity: 0;
+      }
+      .bubble.b1 {
+        left: 40px;
+      }
+      .bubble.b2 {
+        left: 60px;
+      }
+      .bubble.b3 {
+        left: 80px;
+      }
+      @keyframes rise {
+        0% {
+          transform: translateY(0);
+          opacity: 0;
+        }
+        20% {
+          opacity: 0.9;
+        }
+        80% {
+          transform: translateY(-70px);
+          opacity: 0.5;
+        }
+        100% {
+          transform: translateY(-80px);
+          opacity: 0;
+        }
+      }
+      /* vapor */
+      .vapor {
+        position: absolute;
+        left: 50%;
+        bottom: 150px;
+        transform: translateX(-50%);
+        width: 70px;
+        height: 50px;
+        pointer-events: none;
+      }
+      .vapor-cloud {
+        position: absolute;
+        width: 20px;
+        height: 20px;
+        border-radius: 999px;
+        background: radial-gradient(
+          circle,
+          rgba(249, 250, 251, 0.7),
+          rgba(148, 163, 184, 0.05),
+          transparent
+        );
+        opacity: 0;
+      }
+      @keyframes floatUp {
+        0% {
+          transform: translate(0, 10px) scale(0.6);
+          opacity: 0;
+        }
+        30% {
+          opacity: 0.6;
+        }
+        100% {
+          transform: translate(-8px, -20px) scale(1.1);
+          opacity: 0;
+        }
+      }
+      .controls {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.3rem;
+        margin-top: 0.5rem;
+      }
+      .primary-btn {
+        border-radius: 999px;
+        border: 1px solid rgba(191, 219, 254, 0.9);
+        background: radial-gradient(circle at top, #0ea5e9, #1d4ed8);
+        color: #e5ecff;
+        padding: 0.4rem 1.4rem;
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+      }
+      .primary-btn:disabled {
+        opacity: 0.5;
+        cursor: default;
+      }
+      .hint {
+        font-size: 0.8rem;
+        color: #c7d2fe;
+        text-align: center;
+      }
+
+      footer {
+        margin-top: 0.6rem;
+        padding-top: 0.5rem;
+        border-top: 1px solid rgba(30, 64, 175, 0.7);
+        display: flex;
+        flex-direction: column;
+        gap: 0.4rem;
+        font-size: 0.83rem;
+      }
+      .feedback {
+        color: #e5e7eb;
+        white-space: pre-line;
+      }
+      .result-modal {
+        position: fixed;
+        inset: 0;
+        background: rgba(2, 6, 23, 0.78);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        padding: 1rem;
+      }
+      .result-modal.hidden {
+        display: none !important;
+      }
+      .result-card {
+        width: min(760px, 100%);
+        background: linear-gradient(145deg, #0b1220, #020617);
+        border: 1px solid rgba(148, 163, 184, 0.55);
+        border-radius: 16px;
+        box-shadow: 0 24px 80px rgba(0, 0, 0, 0.75);
+        padding: 1rem 1rem 0.9rem;
+      }
+      .result-title {
+        font-size: 1rem;
+        font-weight: 800;
+        color: #dbeafe;
+        margin-bottom: 0.5rem;
+      }
+      .result-text {
+        white-space: pre-line;
+        line-height: 1.75;
+        color: #e5ecff;
+        font-size: 0.92rem;
+        background: rgba(2, 6, 23, 0.65);
+        border: 1px solid rgba(30, 64, 175, 0.7);
+        border-radius: 12px;
+        padding: 0.75rem 0.85rem;
+        max-height: 60vh;
+        overflow: auto;
+      }
+      .result-actions {
+        display: flex;
+        justify-content: flex-start;
+        margin-top: 0.7rem;
+      }
+      .secondary-btn {
+        border-radius: 999px;
+        border: 1px solid rgba(191, 219, 254, 0.7);
+        background: rgba(2, 6, 23, 0.9);
+        color: #e5ecff;
+        padding: 0.4rem 1.2rem;
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+      }
+      .secondary-btn:hover {
+        background: rgba(15, 23, 42, 0.95);
+      }
+      .equation {
+        background: #020617;
+        padding: 0.35rem 0.6rem;
+        border-radius: 8px;
+        border: 1px solid rgba(30, 64, 175, 0.8);
+        direction: ltr;
+        text-align: center;
+        font-size: 0.85rem;
+        font-family: "Segoe UI", system-ui, sans-serif;
+      }
+      .stars {
+        font-size: 1.1rem;
+        color: #4b5563;
+      }
+      .star-on {
+        color: #facc15;
+      }
+      .explanation {
+        color: #e5ecff;
+        line-height: 1.6;
+      }
+
+      .drag-target {
+        position: absolute;
+        left: 50%;
+        bottom: 40px;
+        transform: translateX(-50%);
+        width: 140px;
+        height: 160px;
+        pointer-events: auto;
+      }
+
+      .draggable {
+        cursor: grab;
+      }
+
+      @media (max-width: 900px) {
+        main {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <div class="shell">
+        <header>
+          <div class="titles">
+            <div id="expName" class="title"></div>
+            <div id="expObjective" class="subtitle"></div>
+          </div>
+          <div class="experiment-select">
+            <label for="expSelect">اختر نوع التجربة:</label>
+            <select id="expSelect"></select>
+          </div>
+        </header>
+
+        <main>
+          <section class="panel">
+            <div class="panel-title">المواد الكيميائية</div>
+            <div id="chemPanel" class="panel-body"></div>
+          </section>
+
+          <section class="center">
+            <div class="lab-surface">
+              <div class="lab-table"></div>
+
+              <div class="beaker">
+                <div id="beakerLiquid" class="beaker-liquid"></div>
+                <div id="beakerPrecipitate" class="precipitate"></div>
+                <div id="beakerCopperDeposit" class="precipitate copper"></div>
+                <div class="bubbles">
+                  <div id="b1" class="bubble b1"></div>
+                  <div id="b2" class="bubble b2"></div>
+                  <div id="b3" class="bubble b3"></div>
+                </div>
+              </div>
+
+              <div class="drag-target" id="dropZone"></div>
+
+              <div id="gasBadge" class="gas hidden">H₂ ↑</div>
+              <div id="redoxOverlay" class="redox-overlay hidden">
+                <span>أكسدة →</span>
+                <span>← اختزال</span>
+              </div>
+
+              <div class="vapor">
+                <div id="v1" class="vapor-cloud" style="left:10px;bottom:8px;"></div>
+                <div id="v2" class="vapor-cloud" style="left:28px;bottom:14px;"></div>
+                <div id="v3" class="vapor-cloud" style="left:44px;bottom:10px;"></div>
+              </div>
+            </div>
+            <div class="controls">
+              <button id="startBtn" class="primary-btn" disabled>
+                ابدأ التفاعل
+              </button>
+              <div id="hint" class="hint">
+                اسحب زجاجات المواد واسقطها داخل الكأس، ثم اضغط "ابدأ التفاعل".
+              </div>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-title">أدوات المختبر</div>
+            <div class="panel-body" id="toolsPanel"></div>
+          </section>
+        </main>
+
+        <footer>
+          <div id="feedback" class="feedback"></div>
+          <div id="equation" class="equation"></div>
+          <div id="explanation" class="explanation"></div>
+          <div id="stars" class="stars"></div>
+        </footer>
+
+        <div id="resultModal" class="result-modal hidden" role="dialog" aria-modal="true">
+          <div class="result-card">
+            <div class="result-title">نتائج التجربة</div>
+            <div id="resultText" class="result-text"></div>
+            <div class="result-actions">
+              <button id="closeResultBtn" class="secondary-btn">إغلاق</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // --------- Data ---------
+      const experiments = [
+        {
+          id: "level1_neutralization",
+          name: "تفاعل حمض مع قاعدة (تعادل)",
+          objective: "تعليم مفهوم التعادل وتكوين الماء والملح.",
+          requiredChemicals: ["acid", "base"],
+          type: "neutralization",
+          equation: "HCl(aq) + NaOH(aq) → NaCl(aq) + H₂O(l)",
+          explanation:
+            "التعادل هو تفاعل بين حمض وقاعدة ينتج عنه ماء وملح. في هذه التجربة يتفاعل حمض الهيدروكلوريك مع هيدروكسيد الصوديوم، فتتحد أيونات +H مع أيونات -OH لتكوين الماء، ويتكوّن ملح كلوريد الصوديوم في المحلول.",
+          usage:
+            "يُستخدم التعادل في علاج حموضة المعدة، ومعالجة مياه الصرف، وضبط درجة الحموضة في الصناعات الغذائية والدوائية.",
+        },
+        {
+          id: "level2_single",
+          name: "تفاعل إحلال بسيط",
+          objective: "فهم كيف يحل فلز أنشط محل فلز أقل نشاطًا من محلوله.",
+          requiredChemicals: ["zn", "cu_so4"],
+          correctOrder: ["cu_so4", "zn"],
+          type: "single_displacement",
+          equation: "Zn(s) + CuSO₄(aq) → ZnSO₄(aq) + Cu(s)",
+          explanation:
+            "في تفاعل الإحلال البسيط يحل فلز أنشط محل فلز أقل نشاطًا في محلوله. الزنك أنشط من النحاس، لذلك يطرد أيونات النحاس من محلول كبريتات النحاس، فيترسّب النحاس الفلزي بينما يتحول المحلول تدريجيًا من أزرق إلى باهت.",
+          usage:
+            "تُستعمل تفاعلات الإحلال في تنقية الفلزات واستخلاص بعض المعادن من محاليلها، وكذلك في حماية الفلزات بالتغليف بفلز أنشط (الخلايا الجلفانية).",
+        },
+        {
+          id: "level3_double",
+          name: "تفاعل إحلال مزدوج",
+          objective: "شرح تبادل الأيونات بين مركبين وتكوّن راسب.",
+          requiredChemicals: ["nacl", "agno3"],
+          type: "double_displacement",
+          equation: "NaCl(aq) + AgNO₃(aq) → AgCl(s)↓ + NaNO₃(aq)",
+          explanation:
+            "في تفاعل الإحلال المزدوج تتبادل الأيونات أماكنها بين مركبين في المحلول. عند خلط محلول كلوريد الصوديوم مع نترات الفضة يتكوّن كلوريد الفضة قليل الذوبان، فيظهر على شكل راسب أبيض يترسّب تدريجيًا في قاع الكأس.",
+          usage:
+            "يُستخدم هذا النوع من التفاعل في تحليل نوعية الماء والكشف عن الأيونات، وفي بعض عمليات التنقية والتحضير في المختبرات الكيميائية.",
+        },
+        {
+          id: "level4_metal_acid",
+          name: "تفاعل فلز مع حمض",
+          objective: "تعلم إنتاج الغاز وتأثير الأحماض على الفلزات.",
+          requiredChemicals: ["mg", "acid"],
+          correctOrder: ["acid", "mg"],
+          type: "metal_acid",
+          equation: "Mg(s) + 2HCl(aq) → MgCl₂(aq) + H₂(g)↑",
+          explanation:
+            "عند إضافة فلز المغنيسيوم إلى حمض الهيدروكلوريك يتفاعل الفلز مع أيونات الهيدروجين، فيتكوّن غاز الهيدروجين الذي يظهر على شكل فقاعات سريعة، ويتكوّن أيضًا محلول كلوريد المغنيسيوم. تنبيه تعليمي: في المختبر الحقيقي يتم ذلك بحذر وبكميات صغيرة وتحت إشراف.",
+          usage:
+            "يدل هذا التفاعل على نشاط بعض الفلزات مع الأحماض، ويُستخدم في تحضير غاز الهيدروجين في المختبر، كما يساعد في فهم تآكل المعادن وطرق حمايتها.",
+        },
+        {
+          id: "level5_nonmetal_acid",
+          name: "تفاعل لافلز مع حمض",
+          objective: "فهم لماذا لا تتفاعل اللافلزات العادية مباشرة مع الأحماض مثل الفلزات.",
+          requiredChemicals: ["nonmetal", "acid"],
+          type: "no_reaction",
+          equation: "لا توجد معادلة بسيطة؛ لا يحدث تفاعل مباشر ملحوظ.",
+          explanation:
+            "الكثير من اللافلزات الصلبة مثل الكربون أو الكبريت لا تتفاعل مباشرة مع الأحماض المخففة بنفس الطريقة التي تتفاعل بها الفلزات، لذلك لا نلاحظ فقاعات أو تغيّرًا واضحًا في الكأس عند خلطهما فقط.",
+          usage:
+            "يساعد هذا المثال على تصحيح الفكرة الخاطئة بأن \"أي مادة مع الحمض تعطي غازًا\"، ويوضح الفرق في سلوك الفلزات واللافلزات تجاه الأحماض.",
+        },
+        {
+          id: "level6_redox",
+          name: "تفاعل أكسدة واختزال",
+          objective: "شرح فقد واكتساب الإلكترونات بطريقة مبسطة.",
+          requiredChemicals: ["metal_redox", "oxidizer_redox"],
+          correctOrder: ["oxidizer_redox", "metal_redox"],
+          type: "redox",
+          equation: "مثال مبسط: Fe²⁺ → Fe³⁺ + e⁻ (أكسدة) ،  Cl₂ + 2e⁻ → 2Cl⁻ (اختزال)",
+          explanation:
+            "في تفاعلات الأكسدة والاختزال يفقد عنصر ما بعض الإلكترونات (أكسدة)، بينما يكتسبها عنصر آخر (اختزال). لا نرى الإلكترونات مباشرة، ولكن يمكن ملاحظة تغيّر لون المحلول أو حالة المادة كدليل على انتقال الإلكترونات.",
+          usage:
+            "تفاعلات الأكسدة والاختزال أساسية في خلايا البطاريات، وصدأ الحديد، وعمليات التنفس في الكائنات الحية، وكذلك في عمليات التعدين والتنقية الكهروكيميائية.",
+        },
+      ];
+
+      const chemicals = {
+        acid: {
+          label: "محلول حمضي (HCl)",
+          caption: "حمض قوي",
+          visual: { vessel: "bottle", contentClass: "liquid acid" },
+        },
+        base: {
+          label: "محلول قاعدي (NaOH)",
+          caption: "قاعدة قوية",
+          visual: { vessel: "bottle", contentClass: "liquid base" },
+        },
+        zn: {
+          label: "فلز الزنك (Zn)",
+          caption: "فلز أنشط من النحاس",
+          visual: { vessel: "piece", contentClass: "metal" },
+        },
+        cu_so4: {
+          label: "محلول كبريتات النحاس",
+          caption: "محلول أزرق اللون",
+          visual: { vessel: "bottle", contentClass: "liquid cuso4" },
+        },
+        nacl: {
+          label: "محلول كلوريد الصوديوم (NaCl)",
+          caption: "محلول ملحي",
+          visual: { vessel: "bottle", contentClass: "liquid salt" },
+        },
+        agno3: {
+          label: "محلول نترات الفضة (AgNO₃)",
+          caption: "محلول عديم اللون",
+          visual: { vessel: "bottle", contentClass: "liquid salt" },
+        },
+        mg: {
+          label: "فلز المغنيسيوم (Mg)",
+          caption: "شريط فلزي نشط",
+          visual: { vessel: "piece", contentClass: "metal" },
+        },
+        nonmetal: {
+          label: "لافلز (مثل C أو S)",
+          caption: "لا يُظهر تفاعلًا واضحًا مع الحمض",
+          visual: { vessel: "piece", contentClass: "nonmetal carbon" },
+        },
+        metal_redox: {
+          label: "فلز قابل للأكسدة",
+          caption: "يفقد إلكترونات",
+          visual: { vessel: "piece", contentClass: "metal" },
+        },
+        oxidizer_redox: {
+          label: "محلول مؤكسِد",
+          caption: "يكتسب إلكترونات",
+          visual: { vessel: "bottle", contentClass: "liquid redox" },
+        },
+      };
+
+      const tools = [
+        { label: "كأس زجاجية", caption: "في وسط المشهد", type: "beaker" },
+        { label: "أنبوب اختبار", caption: "لعينات صغيرة", type: "tube" },
+        { label: "قطّارة", caption: "للقطرة الواحدة", type: "dropper" },
+        { label: "ملعقة قياس", caption: "للمساحيق", type: "spoon" },
+        { label: "ميزان رقمي", caption: "لقياس الكتلة", type: "scale" },
+      ];
+
+      // --------- DOM ---------
+      const expSelect = document.getElementById("expSelect");
+      const expName = document.getElementById("expName");
+      const expObjective = document.getElementById("expObjective");
+      const chemPanel = document.getElementById("chemPanel");
+      const toolsPanel = document.getElementById("toolsPanel");
+      const beakerLiquid = document.getElementById("beakerLiquid");
+      const beakerPrecipitate = document.getElementById("beakerPrecipitate");
+      const beakerCopperDeposit = document.getElementById("beakerCopperDeposit");
+      const startBtn = document.getElementById("startBtn");
+      const hint = document.getElementById("hint");
+      const feedback = document.getElementById("feedback");
+      const equation = document.getElementById("equation");
+      const explanation = document.getElementById("explanation");
+      const stars = document.getElementById("stars");
+      const dropZone = document.getElementById("dropZone");
+      const bubblesEls = [document.getElementById("b1"), document.getElementById("b2"), document.getElementById("b3")];
+      const vaporEls = [document.getElementById("v1"), document.getElementById("v2"), document.getElementById("v3")];
+      const gasBadge = document.getElementById("gasBadge");
+      const redoxOverlay = document.getElementById("redoxOverlay");
+      const resultModal = document.getElementById("resultModal");
+      const resultText = document.getElementById("resultText");
+      const closeResultBtn = document.getElementById("closeResultBtn");
+
+      // --------- State ---------
+      let currentExp = experiments[0];
+      let addedChemicals = [];
+
+      // --------- Init UI ---------
+      function initExpSelect() {
+        experiments.forEach((exp) => {
+          const opt = document.createElement("option");
+          opt.value = exp.id;
+          opt.textContent = exp.name;
+          expSelect.appendChild(opt);
+        });
+        expSelect.value = currentExp.id;
+        updateHeader();
+      }
+
+      function updateHeader() {
+        expName.textContent = "تجربة: " + currentExp.name;
+        expObjective.textContent = "الهدف: " + currentExp.objective;
+      }
+
+      function buildChemPanel() {
+        chemPanel.innerHTML = "";
+        // Show only chemicals needed for the current level (simpler & more educational)
+        const idsToShow = currentExp.requiredChemicals.filter((id) => chemicals[id]);
+        idsToShow.forEach((id) => {
+          const chem = chemicals[id];
+          const item = document.createElement("div");
+          item.className = "item draggable";
+          item.draggable = true;
+          item.dataset.chemId = id;
+
+          const header = document.createElement("div");
+          header.className = "item-header";
+          header.textContent = chem.label;
+          const caption = document.createElement("div");
+          caption.className = "item-caption";
+          caption.textContent = chem.caption;
+
+          const graphic = document.createElement("div");
+          graphic.className = "item-graphic";
+          graphic.appendChild(renderMaterialVisual(chem));
+
+          item.appendChild(header);
+          item.appendChild(caption);
+          item.appendChild(graphic);
+          chemPanel.appendChild(item);
+        });
+      }
+
+      function renderMaterialVisual(chem) {
+        const root = document.createElement("div");
+        root.className = "material";
+
+        const vessel = document.createElement("div");
+        vessel.className = "vessel " + chem.visual.vessel;
+
+        if (chem.visual.vessel === "bottle") {
+          const neck = document.createElement("div");
+          neck.className = "neck";
+          const body = document.createElement("div");
+          body.className = "body";
+
+          const content = document.createElement("div");
+          content.className = chem.visual.contentClass;
+          body.appendChild(content);
+
+          vessel.appendChild(neck);
+          vessel.appendChild(body);
+        } else if (chem.visual.vessel === "jar") {
+          // jar powder
+          const powder = document.createElement("div");
+          powder.className = chem.visual.contentClass;
+          vessel.appendChild(powder);
+        } else if (chem.visual.vessel === "piece") {
+          // metal/nonmetal piece
+          if (chem.visual.contentClass.startsWith("nonmetal")) {
+            const wrap = document.createElement("div");
+            wrap.style.display = "flex";
+            wrap.style.alignItems = "center";
+            wrap.style.justifyContent = "center";
+            const nm = document.createElement("div");
+            nm.className = chem.visual.contentClass;
+            wrap.appendChild(nm);
+            vessel.appendChild(wrap);
+          } else {
+            const metal = document.createElement("div");
+            metal.className = chem.visual.contentClass;
+            vessel.appendChild(metal);
+          }
+        }
+
+        root.appendChild(vessel);
+        return root;
+      }
+
+      function buildToolsPanel() {
+        toolsPanel.innerHTML = "";
+        tools.forEach((tool) => {
+          const item = document.createElement("div");
+          item.className = "item";
+          const header = document.createElement("div");
+          header.className = "item-header";
+          header.textContent = tool.label;
+          const caption = document.createElement("div");
+          caption.className = "item-caption";
+          caption.textContent = tool.caption;
+          const graphic = document.createElement("div");
+          graphic.className = "item-graphic";
+          if (tool.type === "scale") {
+            graphic.innerHTML =
+              '<div class="scale"><div class="scale-screen"></div></div>';
+          } else if (tool.type === "beaker") {
+            graphic.innerHTML =
+              '<div style="position:absolute;inset:0;margin:auto;width:40px;height:46px;border-radius:0 0 20px 20px;border:2px solid rgba(226,232,240,0.9);border-top:none;background:linear-gradient(135deg,rgba(248,250,252,0.5),rgba(30,64,175,0.06));"></div>';
+          } else if (tool.type === "tube") {
+            graphic.innerHTML =
+              '<div style="position:absolute;inset:0;margin:auto;width:18px;height:46px;border-radius:12px 12px 4px 4px;border:2px solid rgba(226,232,240,0.9);background:linear-gradient(135deg,rgba(248,250,252,0.4),rgba(15,23,42,0.9));"></div>';
+          } else if (tool.type === "spoon") {
+            graphic.innerHTML =
+              '<div style="position:absolute;inset:0;margin:auto;width:44px;height:20px;border-radius:20px;background:linear-gradient(135deg,#9ca3af,#4b5563);"></div>';
+          } else if (tool.type === "dropper") {
+            graphic.innerHTML =
+              '<div class="dropper"><div class="dropper-body"></div><div class="dropper-tip" style="background:#38bdf8;"></div></div>';
+          }
+          item.appendChild(header);
+          item.appendChild(caption);
+          item.appendChild(graphic);
+          toolsPanel.appendChild(item);
+        });
+      }
+
+      // --------- Drag & Drop ---------
+      function initDragAndDrop() {
+        chemPanel.addEventListener("dragstart", (e) => {
+          const target = e.target.closest(".draggable");
+          if (!target) return;
+          e.dataTransfer.effectAllowed = "copy";
+          e.dataTransfer.setData("text/plain", target.dataset.chemId);
+        });
+
+        dropZone.addEventListener("dragover", (e) => {
+          e.preventDefault();
+          e.dataTransfer.dropEffect = "copy";
+        });
+
+        dropZone.addEventListener("drop", (e) => {
+          e.preventDefault();
+          const id = e.dataTransfer.getData("text/plain");
+          if (!id || !chemicals[id]) return;
+          addChemicalToBeaker(id);
+        });
+      }
+
+      // --------- Logic ---------
+      function resetState() {
+        addedChemicals = [];
+        beakerLiquid.style.height = "0%";
+        beakerLiquid.style.background = "rgba(255, 255, 255, 0.15)";
+        beakerPrecipitate.classList.remove("show");
+        beakerCopperDeposit.classList.remove("show");
+        gasBadge.classList.add("hidden");
+        redoxOverlay.classList.add("hidden");
+        feedback.textContent =
+          "اسحب المواد المرتبطة بالتجربة الحالية إلى الكأس، ثم اضغط على زر \"ابدأ التفاعل\".";
+        equation.textContent = "";
+        explanation.textContent = "";
+        stars.textContent = "";
+        hint.textContent =
+          "يمكنك تجربة أكثر من ترتيب وكمية لمعرفة تأثيرها على التفاعل.";
+        startBtn.disabled = true;
+      }
+
+      function addChemicalToBeaker(id) {
+        addedChemicals.push(id);
+        updateLiquidVisual();
+        startBtn.disabled = !canStartReaction();
+      }
+
+      function canStartReaction() {
+        const req = currentExp.requiredChemicals;
+        if (!req.length) return false;
+        return req.every((id) => addedChemicals.includes(id));
+      }
+
+      function updateLiquidVisual() {
+        const baseHeight = 20;
+        const h = Math.min(90, baseHeight + addedChemicals.length * 15);
+        beakerLiquid.style.height = h + "%";
+
+        // simple blend based on experiment type and contents
+        let color = "rgba(255,255,255,0.15)";
+        if (currentExp.type === "neutralization") {
+          if (addedChemicals.includes("acid") && addedChemicals.includes("base")) {
+            color = "rgba(255,255,255,0.15)"; // محلول ملحي شبه شفاف
+          } else if (addedChemicals.includes("acid")) {
+            color = "rgba(120,180,255,0.35)"; // حمضي: أزرق فاتح/شبه عديم اللون
+          } else if (addedChemicals.includes("base")) {
+            color = "rgba(220,220,220,0.4)"; // قاعدي: شفاف مائل للأبيض
+          }
+        } else if (currentExp.type === "single_displacement") {
+          if (addedChemicals.includes("cu_so4") && !addedChemicals.includes("zn")) {
+            color = "rgba(0,120,255,0.55)"; // CuSO4 أزرق واضح
+          } else if (addedChemicals.includes("cu_so4") && addedChemicals.includes("zn")) {
+            color = "rgba(200,230,255,0.22)"; // باهت بعد الإحلال
+          }
+        } else if (currentExp.type === "double_displacement") {
+          color = "rgba(255,255,255,0.15)"; // محلول شبه شفاف + راسب أبيض
+        } else if (currentExp.type === "metal_acid") {
+          color = "rgba(120,180,255,0.35)"; // حمض شبه شفاف + فقاعات
+        } else if (currentExp.type === "no_reaction") {
+          color = "rgba(120,180,255,0.35)"; // لا تغيّر واضح
+        } else if (currentExp.type === "redox") {
+          color = "#ffcc00"; // تغيّر لوني يدل على انتقال إلكترونات
+        }
+        // If color is already rgba, use it directly; otherwise use a gradient.
+        if (String(color).startsWith("rgba")) {
+          beakerLiquid.style.background = color;
+        } else {
+          beakerLiquid.style.background =
+            "linear-gradient(180deg, rgba(248,250,252,0.4), " + color + ")";
+        }
+      }
+
+      function animateBubblesAndVapor() {
+        bubblesEls.forEach((b, i) => {
+          b.style.bottom = "10px";
+          b.style.animation = "none";
+          void b.offsetWidth; // force reflow
+          b.style.animation = "rise 2.4s infinite ease-out";
+          b.style.animationDelay = i * 0.3 + "s";
+        });
+        vaporEls.forEach((v, i) => {
+          v.style.animation = "none";
+          v.style.opacity = "0";
+          void v.offsetWidth;
+          v.style.animation = "floatUp 3s infinite ease-out";
+          v.style.animationDelay = i * 0.4 + "s";
+        });
+      }
+
+      function stopBubblesAndVapor() {
+        bubblesEls.forEach((b) => {
+          b.style.animation = "none";
+          b.style.opacity = "0";
+        });
+        vaporEls.forEach((v) => {
+          v.style.animation = "none";
+          v.style.opacity = "0";
+        });
+      }
+
+      function evaluateExperiment() {
+        const req = new Set(currentExp.requiredChemicals);
+        const reqArr = currentExp.requiredChemicals.slice();
+        const extras = addedChemicals.filter((id) => !req.has(id));
+
+        // Stars: correct materials + correct order (if defined) + correct quantity
+        let starsCount = 0;
+
+        const hasAll = reqArr.every((id) => addedChemicals.includes(id));
+        if (hasAll && extras.length === 0) starsCount += 1;
+
+        const orderOk = Array.isArray(currentExp.correctOrder)
+          ? currentExp.correctOrder.every((id, idx) => addedChemicals[idx] === id)
+          : true;
+        if (hasAll && orderOk) starsCount += 1;
+
+        const qtyOk = addedChemicals.length === reqArr.length && extras.length === 0;
+        if (hasAll && qtyOk) starsCount += 1;
+
+        return Math.min(3, starsCount);
+      }
+
+      function showResult(starsCount) {
+        let msg;
+        if (starsCount === 3) {
+          msg =
+            "عمل ممتاز! اخترت المواد الصحيحة لهذه التجربة وبكمية مناسبة، وهذا يمثّل التفاعل بشكل تعليمي واضح.";
+        } else if (starsCount === 2) {
+          msg =
+            "تجربة جيّدة. جزء كبير من اختيارك صحيح، ويمكنك تحسين النتيجة بتعديل نوع أو ترتيب المواد.";
+        } else if (starsCount === 1) {
+          msg =
+            "هذه المحاولة أعطت لمحة عن التفاعل، لكن بإمكانك استخدام مواد أكثر دقة للوصول لصورة علمية أوضح.";
+        } else {
+          msg =
+            "لم تعبّر هذه المواد عن هذا التفاعل بشكل صحيح، لا مشكلة، الهدف أن تتعلّم بالتجربة والمحاولة.";
+        }
+
+        const starsLine =
+          (starsCount >= 1 ? "★" : "☆") +
+          " " +
+          (starsCount >= 2 ? "★" : "☆") +
+          " " +
+          (starsCount >= 3 ? "★" : "☆");
+
+        // Show everything as ONE message (as requested)
+        const fullMessage =
+          msg +
+          "\n\n" +
+          currentExp.equation +
+          "\n\n" +
+          currentExp.explanation +
+          "\n" +
+          "تُستخدم هذه الفكرة في الحياة اليومية في: " +
+          currentExp.usage +
+          "\n\n" +
+          starsLine;
+
+        feedback.textContent = fullMessage;
+        resultText.textContent = fullMessage;
+        resultModal.classList.remove("hidden");
+
+        // Keep the dedicated sections empty (optional)
+        equation.textContent = "";
+        explanation.textContent = "";
+        stars.textContent = "";
+      }
+
+      function closeResults() {
+        resultModal.classList.add("hidden");
+      }
+
+      closeResultBtn.addEventListener("click", closeResults);
+      resultModal.addEventListener("click", (e) => {
+        if (e.target === resultModal) closeResults();
+      });
+      window.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") closeResults();
+      });
+
+      // --------- Event Wiring ---------
+      expSelect.addEventListener("change", () => {
+        const id = expSelect.value;
+        const exp = experiments.find((e) => e.id === id);
+        if (!exp) return;
+        currentExp = exp;
+        updateHeader();
+        buildChemPanel();
+        resetState();
+      });
+
+      startBtn.addEventListener("click", () => {
+        if (!canStartReaction()) {
+          feedback.textContent =
+            "أضف المواد المطلوبة لهذه التجربة أولاً ثم اضغط على زر \"ابدأ التفاعل\".";
+          return;
+        }
+        if (currentExp.type === "no_reaction") {
+          stopBubblesAndVapor();
+        } else {
+          animateBubblesAndVapor();
+        }
+        const starsCount = evaluateExperiment();
+        showResult(starsCount);
+
+        // Level-specific visual layers
+        beakerPrecipitate.classList.remove("show");
+        beakerCopperDeposit.classList.remove("show");
+        gasBadge.classList.add("hidden");
+        redoxOverlay.classList.add("hidden");
+
+        if (currentExp.type === "double_displacement") {
+          beakerPrecipitate.classList.add("show");
+        }
+        if (currentExp.type === "single_displacement") {
+          beakerCopperDeposit.classList.add("show");
+        }
+        if (currentExp.type === "metal_acid") {
+          gasBadge.classList.remove("hidden");
+        }
+        if (currentExp.type === "redox") {
+          redoxOverlay.classList.remove("hidden");
+        }
+      });
+
+      // --------- Bootstrap ---------
+      initExpSelect();
+      buildChemPanel();
+      buildToolsPanel();
+      initDragAndDrop();
+      resetState();
+      stopBubblesAndVapor();
+    </script>
+  </body>
+</html>
+
