@@ -79,31 +79,31 @@
         /* Left Panel - Chemical Materials */
         .materials-panel {
             position: absolute;
-            left: 20px;
+            left: 10px;
             top: 50%;
             transform: translateY(-50%);
             background: rgba(255,255,255,0.9);
-            padding: 20px;
+            padding: 15px;
             border-radius: 15px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            width: 200px;
+            width: 160px;
             z-index: 50;
         }
 
         .materials-title {
-            font-size: 18px;
+            font-size: 14px;
             font-weight: bold;
             color: #2c3e50;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
             text-align: center;
         }
 
         .material-item {
-            margin-bottom: 15px;
+            margin-bottom: 10px;
             cursor: move;
             transition: transform 0.2s;
             text-align: center;
-            font-size: 12px;
+            font-size: 10px;
             color: #34495e;
         }
 
@@ -117,23 +117,23 @@
 
         /* Bottle Styles */
         .bottle {
-            width: 60px;
-            height: 80px;
-            margin: 0 auto 5px;
+            width: 45px;
+            height: 60px;
+            margin: 0 auto 3px;
             position: relative;
-            border-radius: 5px 5px 10px 10px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            border-radius: 4px 4px 8px 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
 
         .bottle-neck {
             position: absolute;
-            top: -10px;
+            top: -8px;
             left: 50%;
             transform: translateX(-50%);
-            width: 20px;
-            height: 15px;
+            width: 15px;
+            height: 12px;
             background: inherit;
-            border-radius: 3px 3px 0 0;
+            border-radius: 2px 2px 0 0;
         }
 
         .bottle.hcl {
@@ -150,20 +150,20 @@
 
         /* Metal and Non-metal Styles */
         .metal-piece {
-            width: 50px;
-            height: 30px;
-            margin: 0 auto 5px;
+            width: 35px;
+            height: 20px;
+            margin: 0 auto 3px;
             background: linear-gradient(135deg, #c0c0c0 0%, #808080 50%, #c0c0c0 100%);
-            border-radius: 5px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+            border-radius: 3px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
         }
 
         .non-metal {
-            width: 40px;
-            height: 40px;
-            margin: 0 auto 5px;
+            width: 30px;
+            height: 30px;
+            margin: 0 auto 3px;
             border-radius: 50%;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
         }
 
         .non-metal.carbon {
@@ -185,46 +185,46 @@
 
         /* Beaker */
         .beaker {
-            width: 200px;
-            height: 250px;
+            width: 150px;
+            height: 180px;
             position: relative;
             background: linear-gradient(135deg, 
                 rgba(255,255,255,0.1) 0%, 
                 rgba(255,255,255,0.05) 50%, 
                 rgba(255,255,255,0.08) 100%);
-            border: 3px solid rgba(150,150,150,0.9);
-            border-radius: 0 0 20px 20px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+            border: 2px solid rgba(150,150,150,0.9);
+            border-radius: 0 0 15px 15px;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.15);
         }
 
         /* Glass reflection */
         .beaker::before {
             content: '';
             position: absolute;
-            top: 10px;
-            left: 15px;
-            width: 40px;
-            height: 130px;
+            top: 8px;
+            left: 12px;
+            width: 30px;
+            height: 90px;
             background: linear-gradient(90deg, 
                 rgba(255,255,255,0.6) 0%, 
                 rgba(255,255,255,0.2) 50%, 
                 transparent 100%);
-            border-radius: 10px;
+            border-radius: 8px;
         }
 
         /* Additional glass highlight */
         .beaker::after {
             content: '';
             position: absolute;
-            top: 20px;
-            right: 15px;
-            width: 25px;
-            height: 80px;
+            top: 15px;
+            right: 12px;
+            width: 20px;
+            height: 60px;
             background: linear-gradient(90deg, 
                 transparent 0%, 
                 rgba(255,255,255,0.3) 50%, 
                 rgba(255,255,255,0.1) 100%);
-            border-radius: 8px;
+            border-radius: 6px;
         }
 
         /* Liquid Container */
@@ -341,24 +341,27 @@
         /* Bottom UI Buttons */
         .bottom-ui {
             position: absolute;
-            bottom: 20px;
+            bottom: 10px;
             left: 50%;
             transform: translateX(-50%);
             display: flex;
-            gap: 15px;
+            flex-direction: column;
+            gap: 8px;
             z-index: 100;
+            align-items: center;
         }
 
         .ui-button {
-            padding: 12px 25px;
+            padding: 8px 20px;
             background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
             color: white;
             border: none;
-            border-radius: 25px;
-            font-size: 16px;
+            border-radius: 20px;
+            font-size: 12px;
             cursor: pointer;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+            white-space: nowrap;
         }
 
         .ui-button:hover {
@@ -377,50 +380,54 @@
             left: 50%;
             transform: translate(-50%, -50%);
             background: rgba(255,255,255,0.95);
-            padding: 20px 30px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            padding: 15px 20px;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
             text-align: center;
             display: none;
             z-index: 200;
-            max-width: 400px;
+            max-width: 300px;
+            max-height: 70vh;
+            overflow-y: auto;
         }
 
         .message-title {
-            font-size: 20px;
+            font-size: 16px;
             font-weight: bold;
             color: #2c3e50;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
         }
 
         .message-content {
-            font-size: 16px;
+            font-size: 13px;
             color: #34495e;
-            margin-bottom: 15px;
-            line-height: 1.5;
+            margin-bottom: 12px;
+            line-height: 1.4;
         }
 
         .close-button {
-            padding: 8px 20px;
+            padding: 6px 15px;
             background: #e74c3c;
             color: white;
             border: none;
-            border-radius: 20px;
+            border-radius: 15px;
             cursor: pointer;
-            font-size: 14px;
+            font-size: 12px;
         }
 
         /* Reaction Text */
         .reaction-text {
             position: absolute;
-            top: 20px;
+            top: 15px;
             left: 50%;
             transform: translateX(-50%);
-            font-size: 18px;
+            font-size: 14px;
             font-weight: bold;
             color: #2c3e50;
             opacity: 0;
             transition: opacity 0.5s ease;
+            text-align: center;
+            white-space: nowrap;
         }
 
         .reaction-text.show {
@@ -429,9 +436,94 @@
 
         /* Drop Zone Highlight */
         .beaker-container.drop-zone {
-            border: 3px dashed #3498db;
-            border-radius: 20px;
-            padding: 10px;
+            border: 2px dashed #3498db;
+            border-radius: 15px;
+            padding: 8px;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .materials-panel {
+                width: 140px;
+                padding: 10px;
+                left: 5px;
+            }
+            
+            .materials-title {
+                font-size: 12px;
+            }
+            
+            .material-item {
+                font-size: 9px;
+                margin-bottom: 8px;
+            }
+            
+            .bottle {
+                width: 40px;
+                height: 50px;
+            }
+            
+            .metal-piece {
+                width: 30px;
+                height: 18px;
+            }
+            
+            .non-metal {
+                width: 25px;
+                height: 25px;
+            }
+            
+            .beaker {
+                width: 120px;
+                height: 150px;
+            }
+            
+            .ui-button {
+                font-size: 11px;
+                padding: 6px 15px;
+            }
+            
+            .top-ui {
+                padding: 10px 20px;
+            }
+            
+            .experiment-title {
+                font-size: 18px;
+            }
+            
+            .experiment-goal {
+                font-size: 14px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .materials-panel {
+                width: 120px;
+                padding: 8px;
+            }
+            
+            .bottle {
+                width: 35px;
+                height: 45px;
+            }
+            
+            .beaker {
+                width: 100px;
+                height: 130px;
+            }
+            
+            .ui-button {
+                font-size: 10px;
+                padding: 5px 12px;
+            }
+            
+            .experiment-title {
+                font-size: 16px;
+            }
+            
+            .experiment-goal {
+                font-size: 12px;
+            }
         }
     </style>
 </head>
